@@ -5,7 +5,7 @@ import { languages } from '@codemirror/language-data';
 import { EditorView, keymap, type ViewUpdate } from '@codemirror/view';
 import { insertTab } from '@codemirror/commands';
 import { openSearchPanel, search } from '@codemirror/search';
-import { Bold, Italic, Heading2, Link, Code2, Quote, List, ListChecks, Table2, FilePlus2, FolderOpen, Save, ChevronDown, ChevronRight, PanelLeftClose, PanelLeftOpen, Columns2, FileText, Eye, Moon, Sun, Download, Check, ChevronsLeftRight, Search, BookOpen, X, Keyboard, ArrowUpRight, Plus, AlignLeft, CircleHelp, Undo2, Redo2, Maximize, Minimize, ScanEye } from 'lucide-react';
+import { Bold, Italic, Heading2, Link, Code2, Quote, List, ListChecks, Table2, FilePlus2, FolderOpen, Save, ChevronDown, ChevronRight, PanelLeftClose, PanelLeftOpen, PanelTopClose, PanelTopOpen, Columns2, FileText, Eye, Moon, Sun, Download, Check, ChevronsLeftRight, Search, BookOpen, X, Keyboard, ArrowUpRight, Plus, AlignLeft, CircleHelp, Undo2, Redo2, Maximize, Minimize, ScanEye } from 'lucide-react';
 import { undo, redo } from '@codemirror/commands';
 import { createExportHtml, getOutline, getStats, renderMarkdown } from './lib/markdown';
 import { DRAFT_KEY, documentTitle, download, fileName, readDraft } from './lib/session';
@@ -27,6 +27,7 @@ export default function App() {
   const [documentVersion, setDocumentVersion] = useState(0);
   const [mode, setMode] = useState<Mode>('split');
   const [sidebar, setSidebar] = useState(true);
+  const [headerCollapsed, setHeaderCollapsed] = useState(() => safeSetting('onemark.header-collapsed', 'true') === 'true');
   const [immersive, setImmersive] = useState(false);
   const [fullScreen, setFullScreen] = useState(false);
   const [zoomFactor, setZoomFactor] = useState(1);
@@ -111,6 +112,9 @@ export default function App() {
     document.documentElement.dataset.theme = dark ? 'dark' : 'light';
     try { localStorage.setItem('onemark.theme', dark ? 'dark' : 'light'); } catch { /* optional setting */ }
   }, [dark]);
+  useEffect(() => {
+    try { localStorage.setItem('onemark.header-collapsed', String(headerCollapsed)); } catch { /* optional setting */ }
+  }, [headerCollapsed]);
   useEffect(() => {
     document.title = `${dirty ? '● ' : ''}${name} — OneMark`;
     window.desktop?.setDirty(dirty);
@@ -266,7 +270,7 @@ export default function App() {
     setTimeout(() => { scrollLock.current = false; }, 500);
   };
 
-  return <div className={`app ${sidebar ? '' : 'sidebar-hidden'} ${immersive ? 'immersive' : ''}`}>
+  return <div className={`app ${sidebar ? '' : 'sidebar-hidden'} ${headerCollapsed ? 'header-collapsed' : ''} ${immersive ? 'immersive' : ''}`}>
     <input ref={fileInput} type="file" accept=".md,.markdown,.txt" hidden onChange={event => { const file = event.target.files?.[0]; if (file) void readFile(file, false); event.target.value = ''; }} />
     {sidebar && <aside className="sidebar">
       <a className="brand" href="#" onClick={e => e.preventDefault()} aria-label="OneMark"><span className="brand-icon"><BookOpen size={21} strokeWidth={1.7} /></span><strong>OneMark<span>Markdown</span></strong></a>
@@ -281,8 +285,8 @@ export default function App() {
     </aside>}
     <main className="main">
       <header className="topbar">
-        <div className="breadcrumb"><button className="icon-button" title={sidebar ? '收起侧栏' : '展开侧栏'} aria-label={sidebar ? '收起侧栏' : '展开侧栏'} onClick={() => setSidebar(!sidebar)}>{sidebar ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}</button><span className="breadcrumb-space">文档</span><ChevronRight size={13} /><span className="current-filename">{name}</span><span className={`save-state ${dirty ? 'unsaved' : ''}`}>{dirty ? '未保存' : '已就绪'}</span></div>
-        <div className="header-actions">{zoomFactor !== 1 && <button className="icon-button zoom-reset" aria-label="恢复默认缩放" title="恢复 100%（Ctrl+0）" onClick={() => zoomPage(0)}>{Math.round(zoomFactor * 100)}%</button>}<button className="icon-button theme-button" title={dark ? '浅色主题' : '深色主题'} aria-label={dark ? '浅色主题' : '深色主题'} onClick={() => setDark(!dark)}>{dark ? <Sun size={17} /> : <Moon size={17} />}</button><div ref={exportBox} className="export-wrap"><button className="secondary-button" onClick={() => setExportMenu(!exportMenu)} aria-expanded={exportMenu} disabled={busy}><Download size={15} /> 导出 <ChevronDown size={12} /></button>{exportMenu && <div className="dropdown" role="menu"><button role="menuitem" onClick={() => exportFile('html')}><Code2 size={16} /><span>HTML 网页<small>完整排版 · 离线可读</small></span></button><button role="menuitem" onClick={() => exportFile('pdf')}><FileText size={16} /><span>PDF 文档<small>适合分享与打印</small></span></button><button role="menuitem" onClick={() => { setExportMenu(false); void saveFile(true); }}><Save size={16} /><span>Markdown 源文件<small>另存一份 .md 文档</small></span></button></div>}</div><button className="primary-button" onClick={() => saveFile()} disabled={busy}><Save size={15} /> {busy ? '处理中…' : '保存'}</button></div>
+        <div className="breadcrumb"><button className="icon-button" title={sidebar ? '收起侧栏' : '展开侧栏'} aria-label={sidebar ? '收起侧栏' : '展开侧栏'} onClick={() => setSidebar(!sidebar)}>{sidebar ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}</button><button className="icon-button" title={headerCollapsed ? '展开标题栏' : '收起标题栏'} aria-label={headerCollapsed ? '展开标题栏' : '收起标题栏'} onClick={() => setHeaderCollapsed(!headerCollapsed)}>{headerCollapsed ? <PanelTopOpen size={18} /> : <PanelTopClose size={18} />}</button><span className="breadcrumb-space">文档</span><ChevronRight size={13} /><span className="current-filename">{name}</span><span className={`save-state ${dirty ? 'unsaved' : ''}`}>{dirty ? '未保存' : '已就绪'}</span></div>
+        <div className="header-actions">{headerCollapsed && <div className="compact-view-switch" aria-label="视图模式"><button className={mode === 'edit' ? 'active' : ''} aria-label="编辑" aria-pressed={mode === 'edit'} onClick={() => setMode('edit')}><Code2 size={15} /></button><button className={mode === 'split' ? 'active' : ''} aria-label="双栏" aria-pressed={mode === 'split'} onClick={() => setMode('split')}><Columns2 size={15} /></button><button className={mode === 'read' ? 'active' : ''} aria-label="阅读" aria-pressed={mode === 'read'} onClick={() => setMode('read')}><Eye size={15} /></button><button aria-label="沉浸阅读" onClick={enterImmersive}><ScanEye size={15} /></button></div>}{zoomFactor !== 1 && <button className="icon-button zoom-reset" aria-label="恢复默认缩放" title="恢复 100%（Ctrl+0）" onClick={() => zoomPage(0)}>{Math.round(zoomFactor * 100)}%</button>}<button className="icon-button theme-button" title={dark ? '浅色主题' : '深色主题'} aria-label={dark ? '浅色主题' : '深色主题'} onClick={() => setDark(!dark)}>{dark ? <Sun size={17} /> : <Moon size={17} />}</button><div ref={exportBox} className="export-wrap"><button className="secondary-button" onClick={() => setExportMenu(!exportMenu)} aria-expanded={exportMenu} disabled={busy}><Download size={15} /> 导出 <ChevronDown size={12} /></button>{exportMenu && <div className="dropdown" role="menu"><button role="menuitem" onClick={() => exportFile('html')}><Code2 size={16} /><span>HTML 网页<small>完整排版 · 离线可读</small></span></button><button role="menuitem" onClick={() => exportFile('pdf')}><FileText size={16} /><span>PDF 文档<small>适合分享与打印</small></span></button><button role="menuitem" onClick={() => { setExportMenu(false); void saveFile(true); }}><Save size={16} /><span>Markdown 源文件<small>另存一份 .md 文档</small></span></button></div>}</div><button className="primary-button" onClick={() => saveFile()} disabled={busy}><Save size={15} /> {busy ? '处理中…' : '保存'}</button></div>
       </header>
       <section className="document-header"><div><div className="eyebrow"><span /> MARKDOWN</div><h1>{title}<span className="title-dot">.</span></h1><p>编辑 Markdown，实时查看预览。</p></div><div className="mode-switch" aria-label="视图模式"><button className={mode === 'edit' ? 'active' : ''} aria-pressed={mode === 'edit'} onClick={() => setMode('edit')}><Code2 size={15} /> 编辑</button><button className={mode === 'split' ? 'active' : ''} aria-pressed={mode === 'split'} onClick={() => setMode('split')}><Columns2 size={15} /> 双栏</button><button className={mode === 'read' ? 'active' : ''} aria-pressed={mode === 'read'} onClick={() => setMode('read')}><Eye size={15} /> 阅读</button><button aria-label="沉浸阅读" title="隐藏工具栏，沉浸阅读（Ctrl+Shift+F）" onClick={enterImmersive}><ScanEye size={16} /></button></div></section>
       <div className="workspace-shell" onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); const file = e.dataTransfer.files[0]; if (file) void readFile(file); }}>

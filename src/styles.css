@@ -24,3 +24,6 @@
 
 /* Keep document controls without secondary interface copy. */
 .eyebrow,.document-header p,.pane-label,.local-status,.save-state,.sidebar-label>span,.brand strong span,.statusbar,.sync-button span{display:none}.document-header{padding-top:24px;padding-bottom:24px}.mode-switch{margin-top:0}.brand{margin-bottom:28px}.format-right .sync-button{width:29px;height:29px;padding:0}.sidebar-bottom{padding-top:14px}
+
+/* The large title area is optional; compact mode remains fully usable. */
+.header-collapsed .document-header{display:none}.header-collapsed .topbar{height:50px;min-height:50px}.header-collapsed .workspace-shell{margin-top:14px}.compact-view-switch{display:flex;align-items:center;gap:2px;padding:3px;border:1px solid var(--line);border-radius:6px;background:var(--sidebar)}.compact-view-switch button{width:27px;height:25px;padding:0;border-radius:4px;color:var(--muted)}.compact-view-switch button.active{background:var(--surface);color:var(--text);box-shadow:0 1px 3px #0000000a}@media(max-width:800px){.compact-view-switch{display:none}}

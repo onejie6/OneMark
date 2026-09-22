@@ -6,7 +6,7 @@ Quick Start：`git clone https://github.com/onejie6/OneMark.git`
 
 ## 运行
 
-双击 `release/OneMark-1.1.0-Windows.exe`，无需安装。首次启动需要几秒解压。
+双击 `release/OneMark-1.2.0-Windows.exe`，无需安装。首次启动需要几秒解压。
 
 ## 阅读与缩放
 
@@ -15,6 +15,7 @@ Quick Start：`git clone https://github.com/onejie6/OneMark.git`
 - 点击「阅读」右侧的小图标，或按 **Ctrl + Shift + F**，进入沉浸阅读，隐藏侧栏、顶部选项和工具栏，文章铺满窗口。
 - 沉浸阅读右上角的小型控制条可复原缩放、全屏或退出。**Esc** 恢复之前的视图。
 - **F11** 切换窗口全屏。
+- 顶栏左侧的上下栏图标可收起或展开大标题区；选择会自动记住。
 
 ## 编辑
 
